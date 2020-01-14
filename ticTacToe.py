@@ -8,6 +8,11 @@ def move(pos, color):
     board[pos[0]][pos[1]] = color
 
 
+# deletes move in position x, y
+def delete_move(pos):
+    board[pos[0]][pos[1]] = " "
+
+
 # prints the current board state
 def print_board():
     board_str = "+ - - - +\n"
@@ -43,12 +48,41 @@ def full():
     return True
 
 
-# checks all possibilities and returns the best place for X to go - currently unfinished
-def best_move():
+# checks all possibilities and returns the best place for O to go - currently unfinished
+def best_move(color, init):
+    possible_moves = []
     for i in range(3):
         for j in range(3):
-            if board[i][j] == " ":
-                return i, j
+            if not taken((i, j)):
+                move((i, j), color)
+                moved = (i, j)
+                if win():
+                    if color == "O":
+                        possible_moves.append(("win", 1), moved)  # 1/1 wins
+                    else:
+                        possible_moves.append(("lose", 0), moved)  # 0/1 wins
+                else:
+                    if full():
+                        possible_moves.append(("tie", 0), moved)  # 0/1 wins
+                    else:
+                        if color == "O":
+                            possible_moves.append(best_move("X", False), moved)
+                        else:
+                            possible_moves.append(best_move("O", False), moved)
+                delete_move(moved)
+    if color == "O":
+        best = ("lose", 0)
+        for i in possible_moves:
+            if i[0][0] == "win":
+                if init:
+                    return i[1]
+                return i[0]
+            if i[0][0] == "tie":
+                if best[0] == "lose":
+                    best = i[0]
+                else:
+                    if i[0][1] > best[1]:
+                        best = i[0]
 
 
 # checks to see if the position is taken
@@ -91,7 +125,7 @@ while not full() and not win():
         turn = "O"
 
     else:  # computer's turn
-        move(best_move(), turn)
+        move(best_move(turn, True), turn)
         turn = "X"
     print_board()
 if win():
