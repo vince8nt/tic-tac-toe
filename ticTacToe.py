@@ -48,8 +48,8 @@ def full():
     return True
 
 
-# checks all possibilities and returns the best place for O to go - currently unfinished
-def best_move(color, init):
+# checks all possibilities and returns the best place for O to go
+def best_move(color):
     possible_moves = []
     for i in range(3):
         for j in range(3):
@@ -58,31 +58,47 @@ def best_move(color, init):
                 moved = (i, j)
                 if win():
                     if color == "O":
-                        possible_moves.append(("win", 1), moved)  # 1/1 wins
+                        possible_moves.append(("win", moved))
                     else:
-                        possible_moves.append(("lose", 0), moved)  # 0/1 wins
+                        possible_moves.append(("lose", moved))
                 else:
                     if full():
-                        possible_moves.append(("tie", 0), moved)  # 0/1 wins
+                        possible_moves.append(("tie", moved))
                     else:
                         if color == "O":
-                            possible_moves.append(best_move("X", False), moved)
+                            possible_moves.append((best_move("X")[0], moved))
                         else:
-                            possible_moves.append(best_move("O", False), moved)
+                            possible_moves.append((best_move("O")[0], moved))
                 delete_move(moved)
+
     if color == "O":
-        best = ("lose", 0)
+        best = ("none", "null")
         for i in possible_moves:
-            if i[0][0] == "win":
-                if init:
-                    return i[1]
-                return i[0]
-            if i[0][0] == "tie":
-                if best[0] == "lose":
-                    best = i[0]
-                else:
-                    if i[0][1] > best[1]:
-                        best = i[0]
+            if i[0] == "win":
+                if best[0] != "win":
+                    best = i
+            if i[0] == "tie":
+                if best[0] != "win" and best[0] != "tie":
+                    best = i
+            if i[0] == "lose":
+                if best[0] == "none":
+                    best = i
+        # print(str(possible_moves) + " " + best[0])
+        return best
+
+    else:
+        best = ("none", "null")
+        for i in possible_moves:
+            if i[0] == "win":
+                if best[0] == "none":
+                    best = i
+            if i[0] == "tie":
+                if best[0] != "lose" and best[0] != "tie":
+                    best = i
+            if i[0] == "lose":
+                if best[0] != "lose":
+                    best = i
+        return best
 
 
 # checks to see if the position is taken
@@ -125,7 +141,7 @@ while not full() and not win():
         turn = "O"
 
     else:  # computer's turn
-        move(best_move(turn, True), turn)
+        move(best_move(turn)[1], turn)
         turn = "X"
     print_board()
 if win():
