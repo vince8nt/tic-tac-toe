@@ -141,7 +141,9 @@ while not full() and not win():
         turn = "O"
 
     else:  # computer's turn
-        move(best_move(turn)[1], turn)
+        location = best_move(turn)[1]
+        print("AI moved " + str(location))
+        move(location, turn)
         turn = "X"
     print_board()
 if win():
